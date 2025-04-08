@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Customer Dashboard</title>
+  <link rel="stylesheet" href="customer.css">
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <h2>Customer Panel</h2>
+      <ul>
+        <li>Dashboard</li>
+        <li>Available Stock</li>
+        <li>My Orders</li>
+        <li>Logout</li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <h1>Welcome Farmer</h1>
+
+      <section class="stock-list">
+        <h2>Available Food Stock</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Food</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th>Location</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Cooked Rice</td>
+              <td>15 kg</td>
+              <td>$5</td>
+              <td>City Center</td>
+              <td><button>Order</button></td>
+            </tr>
+            <!-- Add more sample data -->
+          </tbody>
+        </table>
+      </section>
+
+      <section class="order-history">
+        <h2>My Orders</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Item</th>
+              <th>Status</th>
+              <th>Tracking</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>#205</td>
+              <td>Rice</td>
+              <td>Confirmed</td>
+              <td><button>Track</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/customer.js"></script>
+</body>
+</html>
