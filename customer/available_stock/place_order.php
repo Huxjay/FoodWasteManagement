@@ -1,4 +1,15 @@
 <?php
+
+
+session_start();
+
+if (!isset($_SESSION['customer_id'])) {
+    header("Location: ../login/login.php");
+    exit();
+}
+
+
+
 $mysqli = new mysqli("localhost", "root", "", "foodwastemanagement");
 
 if ($mysqli->connect_error) {

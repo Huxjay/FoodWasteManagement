@@ -9,7 +9,7 @@ $role = strtolower($_POST['role']);
 
 $tables = [
     "admin" => ["table" => "admn", "redirect" => "../Admin/admin.html"],
-    "customer" => ["table" => "customer", "redirect" => "../customer/dashboard/dashboard.html"],
+    "customer" => ["table" => "customer", "redirect" => "../customer/dashboard/dashboard.php"],
     "supplier" => ["table" => "supplier", "redirect" => "../Supplier/dashboard/dashboard.html"]
 ];
 
