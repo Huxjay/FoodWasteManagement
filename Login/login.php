@@ -6,9 +6,8 @@ $email = $_POST['email'];
 $password = $_POST['password'];
 $role = strtolower($_POST['role']);
 
-
 $tables = [
-    "admin" => ["table" => "admn", "redirect" => "../Admin/admin.html"],
+    "admin" => ["table" => "admn", "redirect" => "../Admin/dashboard/dashboard.html"],
     "customer" => ["table" => "customer", "redirect" => "../customer/dashboard/dashboard.php"],
     "supplier" => ["table" => "supplier", "redirect" => "../Supplier/dashboard/dashboard.html"]
 ];
@@ -17,8 +16,14 @@ if (array_key_exists($role, $tables)) {
     $table = $tables[$role]["table"];
     $redirect = $tables[$role]["redirect"];
 
-    $query = "SELECT * FROM $table WHERE email='$email' AND password='$password'";
-    $result = $conn->query($query);
+    // Include status check only for supplier and customer
+    $statusCheck = ($role === 'admin') ? "" : " AND status='Active'";
+
+    $query = "SELECT * FROM $table WHERE email=? AND password=? $statusCheck";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("ss", $email, $password);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if ($result->num_rows == 1) {
         $user = $result->fetch_assoc();
@@ -36,6 +41,7 @@ if (array_key_exists($role, $tables)) {
     }
 }
 
-echo "<script>alert('Incorrect email or password!'); window.location.href='login.html';</script>";
+// Login failed
+echo "<script>alert('Incorrect email, password, or account is not active!'); window.location.href='login.html';</script>";
 $conn->close();
 ?>

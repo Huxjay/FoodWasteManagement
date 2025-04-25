@@ -24,7 +24,7 @@ header("Expires: 0");
     <ul>
       <li><a href="">Dashboard</a></li>
       <li><a href="../available_stock/available_stock.html">Available Stock</a></li>
-      <li><a href="../my_order/my_orders.html">My Orders</a></li>
+      <li><a href="../my_order/my_orders.php">My Orders</a></li>
       <li><a href="logout.php" onclick="return confirm('Are you sure you want to log out?');">
         <button>Logout</button>
       </a>
