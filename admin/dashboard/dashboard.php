@@ -18,23 +18,33 @@ session_start();
     <?php include 'sidebar.php'; ?>
 
     <div class="main-content">
-      <h1>Welcome, Customer</h1>
+      <h1>Welcome, Admin</h1>
       <p>Use the dashboard to manage the system efficiently.</p>
 
       <div class="dashboard-cards">
         <div class="card">
-          <i class="fas fas fa-boxes"></i>
-          <h3>Available Stock</h3>
-          <a href="../available_stock/available_stock.html">View</a>
+          <i class="fas fa-user-tie"></i>
+          <h3>Manage Suppliers</h3>
+          <a href="../users/manage_suppliers.php">View</a>
+        </div>
+
+        <div class="card">
+          <i class="fas fa-users"></i>
+          <h3>Manage Customers</h3>
+          <a href="../users/manage_customers.php">View</a>
         </div>
 
         <div class="card">
           <i class="fas fa-shopping-cart"></i>
-          <h3>My orders</h3>
-          <a href="../my_order/my_orders.php">View</a>
+          <h3>View Orders</h3>
+          <a href="../users/view_orders.php">View</a>
         </div>
 
-        
+        <div class="card">
+          <i class="fas fa-chart-line"></i>
+          <h3>Reports</h3>
+          <a href="../users/report.php">View</a>
+        </div>
       </div>
 
       <footer>
@@ -42,8 +52,6 @@ session_start();
       </footer>
     </div>
   </div>
-
-
 </body>
 </html>
 

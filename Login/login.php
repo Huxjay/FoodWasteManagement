@@ -7,9 +7,9 @@ $password = $_POST['password'];
 $role = strtolower($_POST['role']);
 
 $tables = [
-    "admin" => ["table" => "admn", "redirect" => "../Admin/dashboard/dashboard.html"],
+    "admin" => ["table" => "admn", "redirect" => "../Admin/dashboard/dashboard.php"],
     "customer" => ["table" => "customer", "redirect" => "../customer/dashboard/dashboard.php"],
-    "supplier" => ["table" => "supplier", "redirect" => "../Supplier/dashboard/dashboard.html"]
+    "supplier" => ["table" => "supplier", "redirect" => "../Supplier/dashboard/dashboard.php"]
 ];
 
 if (array_key_exists($role, $tables)) {

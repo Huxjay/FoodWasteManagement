@@ -1,5 +1,6 @@
 <?php
-require('../library/fpdf/fpdf.php'); // adjust path if needed
+require_once('../../library/fpdf/fpdf.php');
+// adjust path if needed
 
 $mysqli = new mysqli("localhost", "root", "", "foodwastemanagement");
 
