@@ -1,13 +1,27 @@
-<?php
-// admin/orders/view_orders.php
+<?php 
 session_start();
-require __DIR__ . '/../../db_config.php';
+include_once("../../db_config.php");
 
-// Security: only admin may view
-if (!isset($_SESSION['admin_id'])) {
-    header("Location: ../login/login.html");
+// 🚨 Block caching (prevents access via back button after logout)
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Expires: Sat, 01 Jan 2000 00:00:00 GMT");
+header("Pragma: no-cache");
+
+// 🚨 Enforce login and correct role
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
+    header("Location: ../../login/login.php");
     exit();
 }
+
+// ⏳ Auto logout after 15 minutes of inactivity
+$timeout_duration = 900;
+if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout_duration) {
+    session_unset();
+    session_destroy();
+    header("Location: ../../login/login.php?timeout=1");
+    exit();
+}
+$_SESSION['LAST_ACTIVITY'] = time();
 
 // Fetch all orders with customer & supplier info
 $sql = "

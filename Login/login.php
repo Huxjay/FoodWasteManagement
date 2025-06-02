@@ -1,47 +1,89 @@
-<?php 
+<?php
 session_start();
-include "../db_config.php";
+include '../db_config.php';
 
-$email = $_POST['email'];
-$password = $_POST['password'];
-$role = strtolower($_POST['role']);
+// Handle login form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
 
-$tables = [
-    "admin" => ["table" => "admn", "redirect" => "../Admin/dashboard/dashboard.php"],
-    "customer" => ["table" => "customer", "redirect" => "../customer/dashboard/dashboard.php"],
-    "supplier" => ["table" => "supplier", "redirect" => "../Supplier/dashboard/dashboard.php"]
-];
-
-if (array_key_exists($role, $tables)) {
-    $table = $tables[$role]["table"];
-    $redirect = $tables[$role]["redirect"];
-
-    // Include status check only for supplier and customer
-    $statusCheck = ($role === 'admin') ? "" : " AND status='Active'";
-
-    $query = "SELECT * FROM $table WHERE email=? AND password=? $statusCheck";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("ss", $email, $password);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows == 1) {
+    if (empty($email) || empty($password)) {
+        $error = 'Please fill in all fields.';
+    } else {
+        // Check user in the database
+        $query = "SELECT * FROM users WHERE email = ? AND status = 'active' LIMIT 1";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param('s', $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
         $user = $result->fetch_assoc();
 
-        if ($role === 'supplier') {
-            $_SESSION['supplier_id'] = $user['supplier_id']; 
-        } elseif ($role === 'customer') {
-            $_SESSION['customer_id'] = $user['customer_id'];
-        } elseif ($role === 'admin') {
-            $_SESSION['admin_id'] = $user['admin_id'];
-        }
+        if ($user) {
+            // Check hashed password
+            if (password_verify($password, $user['passhash'])) {
+                // Store user info in session
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_role'] = $user['role'];
+                $_SESSION['user_name'] = $user['name'];
+                $_SESSION['location_id'] = $user['location_id'];
 
-        header("Location: $redirect");
-        exit();
+        if ($user['role'] === 'supplier') {
+            $_SESSION['location_id'] = $user['location_id'];
+        }
+                // Redirect based on role
+                switch ($user['role']) {
+                    case 'admin':
+                        header('Location: ../Admin/dashboard/dashboard.php');
+                        break;
+                    case 'supplier':
+                        header('Location: ../Supplier/dashboard/dashboard.php');
+                        break;
+                    case 'customer':
+                       header('Location: ../customer/dashboard/dashboard.php');
+                        break;
+                    default:
+                        $error = 'Invalid user role.';
+                        break;
+                }
+                exit();
+            } else {
+                $error = 'Incorrect password.';
+            }
+        } else {
+            $error = 'Email not found or account is inactive.';
+        }
     }
 }
-
-// Login failed
-echo "<script>alert('Incorrect email, password, or account is not active!'); window.location.href='login.html';</script>";
-$conn->close();
 ?>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - FoodWasteManagementSystem</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <div class="container">
+        <div class="overlay"></div>
+        <div class="login-box">
+            <h1>Login</h1>
+            <?php if (isset($error)): ?>
+                <p style="color: #ff4d4d;">⚠️ <?php echo $error; ?></p>
+            <?php endif; ?>
+            <form action="" method="POST">
+                <input type="email" name="email" placeholder="Enter your email" required>
+                <input type="password" name="password" placeholder="Enter your password" required>
+                <button type="submit">Login</button>
+            </form>
+            <p>Don’t have an account? <a href="../register/register.html">Register</a></p>
+        </div>
+    </div>
+    <footer>
+        <p>© 2025 UFMS. All rights reserved. | Designed with ❤️ Merecyana</p>
+    </footer>
+    <script src="assets/js/scripts.js"></script>
+</body>
+</html>
