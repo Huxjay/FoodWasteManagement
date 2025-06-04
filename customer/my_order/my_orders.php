@@ -28,13 +28,10 @@ $_SESSION['LAST_ACTIVITY'] = time();
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Orders</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
             background-color: #f4f4f4;
         }
 
@@ -44,34 +41,29 @@ $_SESSION['LAST_ACTIVITY'] = time();
 
         h1 {
             text-align: center;
-            color: #333;
             margin-bottom: 30px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            background-color: white;
+            background: white;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         th, td {
-            padding: 12px 15px;
-            text-align: center;
+            padding: 12px;
             border: 1px solid #ddd;
+            text-align: center;
         }
 
         th {
-            background-color: #4CAF50;
+            background: #4CAF50;
             color: white;
         }
 
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-
         .btn-confirm {
-            background-color: #28a745;
+            background: #28a745;
             color: white;
             padding: 5px 10px;
             border: none;
@@ -80,17 +72,13 @@ $_SESSION['LAST_ACTIVITY'] = time();
         }
 
         .btn-confirm:disabled {
-            background-color: #ccc;
+            background: #ccc;
             cursor: not-allowed;
         }
 
-        .status {
-            font-weight: bold;
-        }
-
-        .status-pending { color: orange; }
-        .status-confirmed { color: green; }
-        .status-delivered { color: blue; }
+        .status-pending { color: orange; font-weight: bold; }
+        .status-confirmed { color: green; font-weight: bold; }
+        .status-delivered { color: blue; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -115,7 +103,7 @@ $_SESSION['LAST_ACTIVITY'] = time();
 </div>
 
 <script>
-    fetch("fetch_orders.php")
+fetch("fetch_orders.php")
     .then(response => response.json())
     .then(data => {
         const tbody = document.querySelector("#ordersTable tbody");
@@ -130,13 +118,13 @@ $_SESSION['LAST_ACTIVITY'] = time();
             const row = document.createElement("tr");
 
             let statusClass = "";
-            if (order.status === 'Pending Supplier Confirmation') statusClass = "status-pending";
-            else if (order.status === 'Order Confirmed') statusClass = "status-confirmed";
-            else if (order.status === 'Delivered') statusClass = "status-delivered";
+            if (order.status === "Pending Supplier Confirmation") statusClass = "status-pending";
+            else if (order.status === "Confirmed") statusClass = "status-confirmed";
+            else if (order.status === "Delivered") statusClass = "status-delivered";
 
-            let action = "N/A";
-            if (order.status === "Order Confirmed" && order.delivery_confirmed_by_customer == 0) {
-                action = `<button class="btn-confirm" onclick="confirmDelivery(${order.order_id})">Confirm Delivery</button>`;
+            let actionHTML = "N/A";
+            if (order.status === "Confirmed" && order.delivery_confirmed_by_customer == 0) {
+                actionHTML = `<button class="btn-confirm" onclick="confirmDelivery(${order.order_id})">Confirm Delivery</button>`;
             }
 
             row.innerHTML = `
@@ -145,9 +133,10 @@ $_SESSION['LAST_ACTIVITY'] = time();
                 <td>${order.quantity_kg}</td>
                 <td>${order.total_price}</td>
                 <td>${order.order_date}</td>
-                <td class="status ${statusClass}">${order.status}</td>
-                <td>${action}</td>
+                <td class="${statusClass}">${order.status}</td>
+                <td>${actionHTML}</td>
             `;
+
             tbody.appendChild(row);
         });
     })
@@ -156,26 +145,24 @@ $_SESSION['LAST_ACTIVITY'] = time();
         document.querySelector("#ordersTable tbody").innerHTML = `<tr><td colspan="7">Failed to load orders.</td></tr>`;
     });
 
-    function confirmDelivery(orderId) {
-        if (!confirm("Are you sure the order was delivered?")) return;
+function confirmDelivery(orderId) {
+    if (!confirm("Are you sure the order was delivered?")) return;
 
-        fetch("confirm_delivery.php", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ order_id: orderId })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                alert("Delivery confirmed! Admin will be notified to release payment.");
-                location.reload();
-            } else {
-                alert("Failed to confirm delivery.");
-            }
-        });
-    }
+    fetch("confirm_delivery.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order_id: orderId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("Delivery confirmed! Admin will be notified.");
+            location.reload();
+        } else {
+            alert("Failed to confirm delivery.");
+        }
+    });
+}
 </script>
 
 </body>
