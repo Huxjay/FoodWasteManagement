@@ -36,7 +36,6 @@ $quantity = floatval($_POST['quantity']);
 $total_price = floatval($_POST['total_price']);
 $order_date = date("Y-m-d");
 
-// ✅ Set initial status and delivery confirmation
 $status = "Pending Supplier Confirmation";
 $payment_method = trim($_POST['payment_method']);
 $payment_status = "Pending";
@@ -54,8 +53,8 @@ if ($mysqli->connect_error) {
     die("❌ Connection failed: " . $mysqli->connect_error);
 }
 
-// 🧾 Check available stock
-$checkStock = $mysqli->prepare("SELECT quantity_kg, status FROM foodstock WHERE stock_id = ?");
+// 🧾 Get supplier_id and available stock
+$checkStock = $mysqli->prepare("SELECT quantity_kg, status, supplier_id FROM foodstock WHERE stock_id = ?");
 $checkStock->bind_param("i", $stock_id);
 $checkStock->execute();
 $result = $checkStock->get_result();
@@ -73,15 +72,18 @@ if ($result->num_rows > 0) {
         exit();
     }
 
+    $supplier_id = intval($stock['supplier_id']);
+
     // 🧾 Begin transaction
     $mysqli->begin_transaction();
 
     try {
-        // 📥 Insert order
+        // 📥 Insert order with supplier_id
         $insert = $mysqli->prepare("
             INSERT INTO orders (
                 customer_id, 
                 stock_id, 
+                supplier_id,
                 quantity_kg, 
                 total_price, 
                 order_date, 
@@ -89,12 +91,13 @@ if ($result->num_rows > 0) {
                 payment_method, 
                 payment_status, 
                 delivery_confirmed_by_customer
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         $insert->bind_param(
-            "iiddssssi",
+            "iiiddssssi",
             $customer_id,
             $stock_id,
+            $supplier_id,
             $quantity,
             $total_price,
             $order_date,

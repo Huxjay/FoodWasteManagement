@@ -146,7 +146,7 @@ fetch("fetch_orders.php")
     });
 
 function confirmDelivery(orderId) {
-    if (!confirm("Are you sure the order was delivered?")) return;
+    if (!confirm("Are you sure this order was delivered?")) return;
 
     fetch("confirm_delivery.php", {
         method: "POST",
@@ -155,12 +155,12 @@ function confirmDelivery(orderId) {
     })
     .then(res => res.json())
     .then(data => {
-        if (data.success) {
-            alert("Delivery confirmed! Admin will be notified.");
-            location.reload();
-        } else {
-            alert("Failed to confirm delivery.");
-        }
+        alert(data.message);
+        if (data.success) location.reload();
+    })
+    .catch(err => {
+        console.error("Error confirming delivery:", err);
+        alert("Something went wrong while confirming delivery.");
     });
 }
 </script>
