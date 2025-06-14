@@ -2,18 +2,18 @@
 session_start();
 include_once("../../db_config.php");
 
-// 🚨 Block caching (prevents access via back button after logout)
+//  Prevent back access after logout
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Expires: Sat, 01 Jan 2000 00:00:00 GMT");
 header("Pragma: no-cache");
 
-// 🚨 Enforce login and correct role
+// Require admin login
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
     header("Location: ../../login/login.php");
     exit();
 }
 
-// ⏳ Auto logout after 15 minutes of inactivity
+// Auto logout after 15 minutes
 $timeout_duration = 900;
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $timeout_duration) {
     session_unset();
@@ -23,8 +23,7 @@ if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) >
 }
 $_SESSION['LAST_ACTIVITY'] = time();
 
-
-// Summary Data
+// Summary Query
 $summary_sql = "
   SELECT 
     COUNT(*) AS total_orders,
@@ -37,39 +36,39 @@ $summary_sql = "
 $summary_result = $conn->query($summary_sql);
 $summary = $summary_result->fetch_assoc();
 
-// Orders List
+// Filter handling
 $from_date = $_GET['from_date'] ?? null;
 $to_date = $_GET['to_date'] ?? null;
 
-$where = "";
-
+$date_filter = "";
 if ($from_date && $to_date) {
-    $where = "WHERE o.order_date BETWEEN '$from_date' AND '$to_date'";
+    $date_filter = " AND o.order_date BETWEEN '$from_date' AND '$to_date'";
 }
 
-// Now use $where in the SQL
+// Orders List Query (using users table)
 $orders_sql = "
   SELECT 
     o.order_id, 
-    c.name AS customer_name, 
+    u.name AS customer_name, 
     f.food_type, 
     o.quantity_kg, 
     o.total_price, 
     o.order_date, 
     o.status
   FROM orders o
-  JOIN customer c ON o.customer_id = c.customer_id
+  JOIN users u ON o.customer_id = u.id
   JOIN foodstock f ON o.stock_id = f.stock_id
-  $where
+  WHERE u.role = 'customer' $date_filter
   ORDER BY o.order_date DESC
 ";
 $orders_result = $conn->query($orders_sql);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Reports</title>
+  <title>Admin Reports</title>
   <style>
     body { font-family: Arial, sans-serif; background:#eef2f3; margin:20px; }
     h2 { text-align:center; }
@@ -87,8 +86,8 @@ $orders_result = $conn->query($orders_sql);
 <h2>Admin Reports</h2>
 
 <form method="GET" style="text-align:center; margin-bottom:30px;">
-    <label>From: <input type="date" name="from_date" value="<?= $_GET['from_date'] ?? '' ?>"></label>
-    <label>To: <input type="date" name="to_date" value="<?= $_GET['to_date'] ?? '' ?>"></label>
+    <label>From: <input type="date" name="from_date" value="<?= htmlspecialchars($_GET['from_date'] ?? '') ?>"></label>
+    <label>To: <input type="date" name="to_date" value="<?= htmlspecialchars($_GET['to_date'] ?? '') ?>"></label>
     <button type="submit">Filter</button>
 </form>
 
@@ -100,7 +99,6 @@ $orders_result = $conn->query($orders_sql);
         <button type="button">Download Excel</button>
     </a>
 </div>
-
 
 <div class="summary">
   <div>
@@ -164,9 +162,10 @@ $orders_result = $conn->query($orders_sql);
   <tbody>
 <?php
 $top_customers_sql = "
-  SELECT c.name, COUNT(o.order_id) AS order_count
+  SELECT u.name, COUNT(o.order_id) AS order_count
   FROM orders o
-  JOIN customer c ON o.customer_id = c.customer_id
+  JOIN users u ON o.customer_id = u.id
+  WHERE u.role = 'customer'
   GROUP BY o.customer_id
   ORDER BY order_count DESC
   LIMIT 5
@@ -218,7 +217,6 @@ if ($top_food_result->num_rows):
 <?php endif; ?>
   </tbody>
 </table>
-
 
 </body>
 </html>

@@ -2,12 +2,12 @@
 session_start();
 include_once("../../db_config.php");
 
-// 🚨 Block caching (prevents access via back button after logout)
+// Block caching (prevents access via back button after logout)
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Expires: Sat, 01 Jan 2000 00:00:00 GMT");
 header("Pragma: no-cache");
 
-// 🚨 Enforce login and correct role
+// Enforce login and correct role
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'supplier') {
     header("Location: ../../login/login.php");
     exit();
@@ -73,7 +73,22 @@ document.onclick = resetTimer;
           <h3>View Orders</h3>
           <a href="../view_orders/view_orders.php">View</a>
         </div>
+
+        <div class="card">
+          <i class="fas fa-receipt"></i>
+          <h3>wallet</h3>
+          <a href="../wallet/supplier_wallet.php">View</a>
+        </div>
+
+
+        <div class="card">
+          <i class="fas fa-receipt"></i>
+          <h3>report</h3>
+          <a href="../view_orders/supplier_report.php">View</a>
+        </div>
       </div>
+
+      
 
       <script src="dashboard.js"></script>
 

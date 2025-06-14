@@ -85,8 +85,8 @@ document.onclick = resetTimer;
 
         <div class="card">
           <i class="fas fa-shopping-cart"></i>
-          <h3>View Orders</h3>
-          <a href="../users/view_orders.php">View</a>
+          <h3>token</h3>
+          <a href="../token/grant_tokens.php">View</a>
         </div>
 
         <div class="card">
